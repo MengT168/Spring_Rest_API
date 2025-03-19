@@ -23,11 +23,10 @@ import com.meng.test.API.Service.SaleService;
 
 import lombok.RequiredArgsConstructor;
 
-
 @Service
 @RequiredArgsConstructor
 public class SaleServiceImpl implements SaleService {
-	
+
 	private final ProductRepository productRepository;
 	private final ProductService productService;
 	private final SaleRepository saleRepository;
@@ -38,42 +37,44 @@ public class SaleServiceImpl implements SaleService {
 		List<Integer> productId = saleDTO.getProducts().stream().map(ProductSoldDTO::getProductId).toList();
 		productId.forEach(productService::getById);
 		List<Product> product = productRepository.findAllById(productId);
-		Map<Integer, Product> productMap = product.stream().collect(Collectors.toMap(Product::getId, Function.identity()));
-		
-		saleDTO.getProducts().forEach(
-					Ps->{
-						Product products = productMap.get(Ps.getProductId());
-						if(products.getAvailableUnit() < Ps.getNumberOfUnt()) {
-							throw new ApiException(HttpStatus.BAD_REQUEST, "Product %s not enough stock".formatted(products.getName()));
-						}
-					}
-				);
-		
-		Sale sale = new Sale();
-		sale.setSold_date(saleDTO.getSoldDate());
-		sale.setStatus(true);
-		saleRepository.save(sale);
-		
-		
-		saleDTO.getProducts().forEach(P->{
+		Map<Integer, Product> productMap = product.stream()
+				.collect(Collectors.toMap(Product::getId, Function.identity()));
+
+		saleDTO.getProducts().forEach(Ps -> {
+			Product products = productMap.get(Ps.getProductId());
+			if (products.getAvailableUnit() < Ps.getNumberOfUnt()) {
+				throw new ApiException(HttpStatus.BAD_REQUEST,
+						"Product %s not enough stock".formatted(products.getName()));
+			}
+		});
+
+		saleDTO.getProducts().forEach(P -> {
 			Product products = productMap.get(P.getProductId());
+			if (products.getSalePrice() == null) {
+				throw new ApiException(HttpStatus.BAD_REQUEST,
+						"Product %s don't have sale price".formatted(products.getName()));
+			}
+			Sale sale = new Sale();
+			sale.setSold_date(saleDTO.getSoldDate());
+			sale.setStatus(true);
+			saleRepository.save(sale);
+
 			Sale_detail sale_detail = new Sale_detail();
 			sale_detail.setProduct(products);
 			sale_detail.setSale(sale);
 			sale_detail.setUnit(P.getNumberOfUnt());
 			sale_detail.setAmount(products.getSalePrice());
 			saleDetailRepository.save(sale_detail);
-			
-			products.setAvailableUnit(products.getAvailableUnit()- P.getNumberOfUnt());
+
+			products.setAvailableUnit(products.getAvailableUnit() - P.getNumberOfUnt());
 			productRepository.save(products);
 		});
-		
-		
+
 	}
 
 	@Override
 	public Sale getById(Integer saleId) {
-		Sale sale = saleRepository.findById(saleId).orElseThrow(()-> new ResourceNotFoundException("Sale", saleId));
+		Sale sale = saleRepository.findById(saleId).orElseThrow(() -> new ResourceNotFoundException("Sale", saleId));
 		return sale;
 	}
 
@@ -82,19 +83,20 @@ public class SaleServiceImpl implements SaleService {
 		Sale sale = getById(saleId);
 		sale.setStatus(false);
 		saleRepository.save(sale);
-		
+
 		List<Sale_detail> saleDetail = saleDetailRepository.getBySaleId(saleId);
-		List<Integer> productId = saleDetail.stream().map(P->P.getProduct().getId()).toList();
+		List<Integer> productId = saleDetail.stream().map(P -> P.getProduct().getId()).toList();
 		List<Product> products = productRepository.findAllById(productId);
-		
-		Map<Integer, Product> productMap = products.stream().collect(Collectors.toMap(Product::getId, Function.identity()));
-		
-		saleDetail.forEach(Sd->{
+
+		Map<Integer, Product> productMap = products.stream()
+				.collect(Collectors.toMap(Product::getId, Function.identity()));
+
+		saleDetail.forEach(Sd -> {
 			Product product = productMap.get(Sd.getProduct().getId());
-			product.setAvailableUnit(product.getAvailableUnit()+Sd.getUnit());
+			product.setAvailableUnit(product.getAvailableUnit() + Sd.getUnit());
 			productRepository.save(product);
 		});
-		
+
 	}
 
 }
