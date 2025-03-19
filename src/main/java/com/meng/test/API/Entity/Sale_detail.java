@@ -1,5 +1,7 @@
 package com.meng.test.API.Entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,15 +14,19 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "model")
-public class Model {
+@Table(name = "saleDetails")
+public class Sale_detail {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "model_id")
+	@Column(name = "sale_detail_id")
 	private int id;
-	private String name;
-	
 	@ManyToOne
-	@JoinColumn(name = "brand_id")
-	private Brand brand;
+	@JoinColumn(name = "sale_id")
+	private Sale sale;
+	@ManyToOne
+	@JoinColumn(name = "product_id")
+	private Product product;
+	@Column(name = "amount")
+	private BigDecimal amount;
+	private Integer unit;
 }
