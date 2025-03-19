@@ -19,4 +19,5 @@ public class Sale {
 	@Column(name = "sale_id")
 	private int id;
 	private LocalDateTime sold_date;
+	private Boolean status;
 }

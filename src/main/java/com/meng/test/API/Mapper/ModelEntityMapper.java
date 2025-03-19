@@ -14,6 +14,7 @@ public interface ModelEntityMapper {
 	ModelEntityMapper INSTAN = Mappers.getMapper(ModelEntityMapper.class);
 	
 	@Mapping(target = "brand" , source = "brandId")
+	@Mapping(target = "id" , ignore = true)
 	Model toModel(ModelDTO dto);
 	
 	@Mapping(target = "brandId" , source = "brand.id")
