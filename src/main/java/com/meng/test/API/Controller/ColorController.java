@@ -3,6 +3,7 @@ package com.meng.test.API.Controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +27,7 @@ public class ColorController {
 	
 	private final ColorService colorService;
 	
-	
+	@PreAuthorize("hasAuthority('color:write')")
 	@PostMapping
 	public ResponseEntity<?> createColor(@RequestBody ColorDTO dto){
 		Color color = ColorMapper.INSTAN.toColor(dto);
@@ -34,7 +35,7 @@ public class ColorController {
 		return ResponseEntity.ok(ColorMapper.INSTAN.toDTO(color));
 	}
 	
-	
+	@PreAuthorize("hasAuthority('color:read')")
 	@GetMapping
 	public ResponseEntity<?> getColors(){
 		List<Color> colors = colorService.getColors();
