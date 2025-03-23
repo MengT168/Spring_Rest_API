@@ -28,9 +28,11 @@ public class UserServiceImpl implements UserService {
 	public Optional<AuthUser> getByName(String name) {
 		User user = repository.getByUsername(name)
 				.orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Username Not Found"));
-		AuthUser authUser = AuthUser.builder().username(user.getUsername()).authorities(getAuthorities(user.getRoles()))
-				.password(user.getPassword()).build();
-
+		AuthUser authUser = AuthUser.builder()
+									.username(user.getUsername())
+									.authorities(getAuthorities(user.getRoles()))
+									.password(user.getPassword())
+									.build();
 		return Optional.ofNullable(authUser);
 	}
 
