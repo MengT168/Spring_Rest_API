@@ -9,11 +9,13 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.meng.test.API.Jwt.FilterChainExceptionHandler;
 import com.meng.test.API.Jwt.JwtLoginFilter;
 import com.meng.test.API.Jwt.TokenVerifyFilter;
 
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	
 	private final UserService userService;
+	private final FilterChainExceptionHandler filterChainExceptionHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
@@ -35,6 +38,10 @@ public class SecurityConfig {
 //                .requestMatchers(HttpMethod.PUT, "/api/permission/**").hasAuthority(PermissionEnum.PERMISSION_WRITE.getDescription())
                 .anyRequest().authenticated()
             )
+            .sessionManagement(session -> session
+            	.sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
+            )
+            .addFilterBefore(filterChainExceptionHandler, JwtLoginFilter.class)
             .addFilter(new JwtLoginFilter(authenticationManager))
             .addFilterAfter(new TokenVerifyFilter(), JwtLoginFilter.class);
 

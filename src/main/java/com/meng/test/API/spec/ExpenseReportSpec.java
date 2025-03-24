@@ -27,10 +27,12 @@ public class ExpenseReportSpec implements Specification<ProductImportHistory> {
 		
 		
 		if(Objects.nonNull(expenseReportFilter.getStartDate())) {
-			cb.greaterThanOrEqualTo(productImportHistory.get("date_import"), expenseReportFilter.getStartDate());
+			Predicate startDate = cb.greaterThanOrEqualTo(productImportHistory.get("date_import"), expenseReportFilter.getStartDate());
+			predicates.add(startDate);
 		}
 		if(Objects.nonNull(expenseReportFilter.getEnDate())) {
-			cb.greaterThanOrEqualTo(productImportHistory.get("date_import"), expenseReportFilter.getEnDate());
+			Predicate endDate = cb.greaterThanOrEqualTo(productImportHistory.get("date_import"), expenseReportFilter.getEnDate());
+			predicates.add(endDate);
 		}
 		
 		return cb.and(predicates.toArray(new Predicate[0]));

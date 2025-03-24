@@ -30,11 +30,13 @@ public class ReportSpec implements Specification<Sale_detail> {
 		Join<Sale_detail, Sale> sale = sale_detail.join("sale");
 
 		if (Objects.nonNull(filter.getStartDate())) {
-			cb.greaterThanOrEqualTo(sale.get("sold_date"), filter.getStartDate());
+			Predicate soldDate = cb.greaterThanOrEqualTo(sale.get("sold_date"), filter.getStartDate());
+			predicates.add(soldDate);
 		}
 
 		if (Objects.nonNull(filter.getEndDate())) {
-			cb.greaterThanOrEqualTo(sale.get("sold_date"), filter.getEndDate());
+			Predicate soldDate = cb.greaterThanOrEqualTo(sale.get("sold_date"), filter.getEndDate());
+			predicates.add(soldDate);
 		}
 
 		predicates.add(cb.isTrue(sale.get("status")));
